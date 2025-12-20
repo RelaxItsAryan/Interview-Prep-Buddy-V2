@@ -1,6 +1,6 @@
 # 🎯 Interview Prep Buddy
 
-# Website Link- [interview-buddy.netlify.app](https://interview-buddy.netlify.app/)
+# Website Link- [interview-buddy-v2.vercel.app](https://interview-buddy-v2.vercel.app/)
 An **open-source interview practice web application** built using **HTML, CSS, and JavaScript**.  
 It helps students practice mock interview questions using **voice-based answers**, view **live transcripts**, and explore a **future-ready AI feedback interface**.
 

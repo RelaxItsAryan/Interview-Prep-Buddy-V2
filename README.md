@@ -37,12 +37,12 @@ Follow these steps to run the project locally.
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/your-username/interview-buddy-v2.git
+   git clone https://github.com/your-username/interview-prep-buddy-v2.git
    ```
 
 2. Navigate to the project directory
    ```bash
-   cd interview-buddy-v2
+   cd interview-prep-buddy-v2
    ```
 
 3. Install dependencies
@@ -86,4 +86,3 @@ The project is deployed on **Vercel**, ensuring fast load times and easy scalabi
 ## Author
 
 **Aryan Amit Arya**  
-Computer Science Engineering (AI & ML)

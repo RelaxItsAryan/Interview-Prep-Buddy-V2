@@ -58,8 +58,6 @@ const Interview: React.FC = () => {
   const handleVoiceRecording = async (audioBlob: Blob) => {
     setIsAnalyzing(true);
     setFeedback(null);
-
-    // Simulate processing
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     // For MVP, generate mock feedback based on recording duration

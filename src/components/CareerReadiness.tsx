@@ -1,32 +1,18 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import ScoreCircle from './ScoreCircle';
-import { TrendingUp, Award, Target, Zap } from 'lucide-react';
+import { Award, Target, Zap, CheckCircle } from 'lucide-react';
 
 interface CareerReadinessProps {
-  overallScore: number;
   questionsAnswered: number;
   totalQuestions: number;
-  improvement: number;
 }
 
 const CareerReadiness: React.FC<CareerReadinessProps> = ({
-  overallScore,
   questionsAnswered,
   totalQuestions,
-  improvement,
 }) => {
   const progressPercentage = (questionsAnswered / totalQuestions) * 100;
-
-  const getReadinessLevel = (score: number) => {
-    if (score >= 80) return { label: 'Interview Ready', color: 'text-primary' };
-    if (score >= 60) return { label: 'Almost There', color: 'text-secondary' };
-    if (score >= 40) return { label: 'Making Progress', color: 'text-accent' };
-    return { label: 'Keep Practicing', color: 'text-muted-foreground' };
-  };
-
-  const readiness = getReadinessLevel(overallScore);
 
   return (
     <Card variant="elevated" className="overflow-hidden">
@@ -36,24 +22,52 @@ const CareerReadiness: React.FC<CareerReadinessProps> = ({
             <div className="p-2 rounded-xl bg-accent/20">
               <Award className="w-5 h-5 text-accent" />
             </div>
-            Career Readiness
-          </span>
-          <span className={`text-sm font-medium ${readiness.color}`}>
-            {readiness.label}
+            Interview Progress
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Main Score */}
+        {/* Progress Circle */}
         <div className="flex items-center justify-center py-4">
-          <ScoreCircle score={overallScore} label="Overall" size="lg" />
+          <div className="relative w-32 h-32">
+            <svg className="w-full h-full transform -rotate-90">
+              <circle
+                cx="50%"
+                cy="50%"
+                r="45%"
+                fill="none"
+                stroke="hsl(var(--muted))"
+                strokeWidth="8"
+                className="opacity-30"
+              />
+              <circle
+                cx="50%"
+                cy="50%"
+                r="45%"
+                fill="none"
+                strokeWidth="8"
+                strokeLinecap="round"
+                className="stroke-primary transition-all duration-1000 ease-out"
+                style={{
+                  strokeDasharray: 2 * Math.PI * 45,
+                  strokeDashoffset: 2 * Math.PI * 45 * (1 - progressPercentage / 100),
+                }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="font-display font-bold text-2xl text-primary">
+                {questionsAnswered}
+              </span>
+              <span className="text-xs text-muted-foreground">of {totalQuestions}</span>
+            </div>
+          </div>
         </div>
 
         {/* Progress Bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Interview Progress</span>
-            <span className="font-medium">{questionsAnswered}/{totalQuestions} questions</span>
+            <span className="text-muted-foreground">Questions Completed</span>
+            <span className="font-medium">{questionsAnswered}/{totalQuestions}</span>
           </div>
           <Progress value={progressPercentage} variant="gradient" />
         </div>
@@ -65,18 +79,18 @@ const CareerReadiness: React.FC<CareerReadinessProps> = ({
               <Target className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Questions Left</p>
+              <p className="text-xs text-muted-foreground">Remaining</p>
               <p className="font-display font-semibold">{totalQuestions - questionsAnswered}</p>
             </div>
           </div>
           
           <div className="p-3 rounded-xl bg-muted/30 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-secondary/20">
-              <TrendingUp className="w-4 h-4 text-secondary" />
+              <CheckCircle className="w-4 h-4 text-secondary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Improvement</p>
-              <p className="font-display font-semibold text-secondary">+{improvement}%</p>
+              <p className="text-xs text-muted-foreground">Completed</p>
+              <p className="font-display font-semibold text-secondary">{questionsAnswered}</p>
             </div>
           </div>
         </div>
@@ -86,11 +100,13 @@ const CareerReadiness: React.FC<CareerReadinessProps> = ({
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-primary" />
             <p className="text-sm text-foreground">
-              {overallScore < 50 
-                ? "Every practice session brings you closer to your dream job!"
-                : overallScore < 75
-                  ? "Great progress! You're developing strong interview skills."
-                  : "Excellent! You're well-prepared for real interviews."
+              {questionsAnswered === 0 
+                ? "Start answering questions to practice!"
+                : questionsAnswered < totalQuestions / 2
+                  ? "Great start! Keep going to complete the interview."
+                  : questionsAnswered < totalQuestions
+                    ? "Almost there! Just a few more questions."
+                    : "Excellent! You've completed all questions!"
               }
             </p>
           </div>

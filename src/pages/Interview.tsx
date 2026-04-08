@@ -3,38 +3,71 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import InterviewMirror from '@/components/InterviewMirror';
 import AnswerComparison from '@/components/AnswerComparison';
 import CareerReadiness from '@/components/CareerReadiness';
 import VoiceRecorder from '@/components/VoiceRecorder';
 import FloatingOrb from '@/components/FloatingOrb';
-import { Role } from '@/components/RoleCard';
-import { questionBank, generateMockFeedback } from '@/data/questions';
-import { ArrowLeft, ArrowRight, Send, Mic, Keyboard, MessageSquare } from 'lucide-react';
+import { evaluateAnswer, isGroqConfigured, transcribeAudio, generateInterviewQuestions, GeneratedQuestion } from '@/lib/groqService';
+import { ArrowLeft, ArrowRight, Send, Mic, Keyboard, MessageSquare, Loader2 } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 
 const Interview: React.FC = () => {
   const { role } = useParams<{ role: string }>();
   const navigate = useNavigate();
   
+  const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState('');
   const [inputMode, setInputMode] = useState<'text' | 'voice'>('text');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [feedback, setFeedback] = useState<{
-    perception: { confidence: number; clarity: number; depth: number; relevance: number; feedback: string };
+    feedback: string;
     strongAnswer: string;
     missingElements: string[];
   } | null>(null);
-  const [scores, setScores] = useState<number[]>([]);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
 
-  const questions = questionBank[role as Role] || questionBank.frontend;
   const currentQuestion = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
 
-  const overallScore = scores.length > 0 
-    ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-    : 0;
+  const getRoleTitle = (r: string) => {
+    const titles: Record<string, string> = {
+      frontend: 'Frontend Developer',
+      backend: 'Backend Developer',
+      'data-analyst': 'Data Analyst',
+    };
+    return titles[r] || 'Developer';
+  };
+
+  // Generate questions on mount
+  useEffect(() => {
+    const loadQuestions = async () => {
+      if (!isGroqConfigured()) {
+        toast.error('Groq API not configured', {
+          description: 'Add VITE_GROQ_API_KEY to your .env file.',
+        });
+        navigate('/select-role');
+        return;
+      }
+
+      try {
+        setIsLoadingQuestions(true);
+        const generatedQuestions = await generateInterviewQuestions(getRoleTitle(role || 'frontend'), 8);
+        setQuestions(generatedQuestions);
+      } catch (error) {
+        console.error('Failed to generate questions:', error);
+        toast.error('Failed to generate questions', {
+          description: error instanceof Error ? error.message : 'Please try again.',
+        });
+        navigate('/select-role');
+      } finally {
+        setIsLoadingQuestions(false);
+      }
+    };
+
+    loadQuestions();
+  }, [role, navigate]);
 
   const handleSubmitAnswer = async () => {
     if (!answer.trim()) return;
@@ -42,36 +75,58 @@ const Interview: React.FC = () => {
     setIsAnalyzing(true);
     setFeedback(null);
 
-    // Simulate AI processing delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    const mockFeedback = generateMockFeedback(answer);
-    setFeedback(mockFeedback);
-    
-    const avgScore = (mockFeedback.perception.confidence + mockFeedback.perception.clarity + 
-                      mockFeedback.perception.depth + mockFeedback.perception.relevance) / 4;
-    setScores(prev => [...prev, avgScore]);
-    setAnsweredQuestions(prev => new Set([...prev, currentQuestionIndex]));
-    setIsAnalyzing(false);
+    try {
+      const aiFeedback = await evaluateAnswer(
+        currentQuestion.text,
+        answer,
+        getRoleTitle(role || 'frontend'),
+        currentQuestion.category
+      );
+      setFeedback(aiFeedback);
+      setAnsweredQuestions(prev => new Set([...prev, currentQuestionIndex]));
+    } catch (error) {
+      console.error('Evaluation error:', error);
+      toast.error('Failed to evaluate answer', {
+        description: error instanceof Error ? error.message : 'Please try again.',
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleVoiceRecording = async (audioBlob: Blob) => {
     setIsAnalyzing(true);
     setFeedback(null);
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // For MVP, generate mock feedback based on recording duration
-    const mockAnswer = "The candidate provided a verbal response demonstrating understanding of the topic. They showed confidence in their delivery and covered the main points expected in this type of question.";
-    setAnswer(mockAnswer);
-
-    const mockFeedback = generateMockFeedback(mockAnswer);
-    setFeedback(mockFeedback);
-    
-    const avgScore = (mockFeedback.perception.confidence + mockFeedback.perception.clarity + 
-                      mockFeedback.perception.depth + mockFeedback.perception.relevance) / 4;
-    setScores(prev => [...prev, avgScore]);
-    setAnsweredQuestions(prev => new Set([...prev, currentQuestionIndex]));
-    setIsAnalyzing(false);
+    try {
+      toast.info('Transcribing your response...');
+      const transcribedText = await transcribeAudio(audioBlob);
+      
+      if (!transcribedText.trim()) {
+        toast.error('Could not transcribe audio. Please try again or type your answer.');
+        setIsAnalyzing(false);
+        return;
+      }
+      
+      setAnswer(transcribedText);
+      toast.success('Transcription complete!');
+      
+      const aiFeedback = await evaluateAnswer(
+        currentQuestion.text,
+        transcribedText,
+        getRoleTitle(role || 'frontend'),
+        currentQuestion.category
+      );
+      setFeedback(aiFeedback);
+      setAnsweredQuestions(prev => new Set([...prev, currentQuestionIndex]));
+    } catch (error) {
+      console.error('Voice processing error:', error);
+      toast.error('Failed to process voice recording', {
+        description: error instanceof Error ? error.message : 'Please try again.',
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleNextQuestion = () => {
@@ -90,14 +145,24 @@ const Interview: React.FC = () => {
     }
   };
 
-  const getRoleTitle = (r: string) => {
-    const titles: Record<string, string> = {
-      frontend: 'Frontend Developer',
-      backend: 'Backend Developer',
-      'data-analyst': 'Data Analyst',
-    };
-    return titles[r] || 'Developer';
-  };
+  // Show loading state while generating questions
+  if (isLoadingQuestions) {
+    return (
+      <div className="min-h-screen relative overflow-hidden py-8 px-4">
+        <FloatingOrb className="top-10 -right-20" size="lg" color="secondary" />
+        <FloatingOrb className="bottom-40 -left-32" size="xl" color="primary" />
+        <div className="max-w-7xl mx-auto relative z-10 flex flex-col items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+          <h2 className="font-display text-xl font-bold">Generating Interview Questions...</h2>
+          <p className="text-muted-foreground">AI is preparing personalized questions for {getRoleTitle(role || '')} role</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentQuestion) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden py-8 px-4">
@@ -209,17 +274,33 @@ const Interview: React.FC = () => {
             {/* Feedback Section */}
             {(feedback || isAnalyzing) && (
               <div className="space-y-6">
-                <InterviewMirror 
-                  perception={feedback?.perception || { confidence: 0, clarity: 0, depth: 0, relevance: 0, feedback: '' }}
-                  isLoading={isAnalyzing}
-                />
-                
-                {feedback && (
-                  <AnswerComparison
-                    userAnswer={answer}
-                    strongAnswer={feedback.strongAnswer}
-                    missingElements={feedback.missingElements}
-                  />
+                {isAnalyzing ? (
+                  <Card variant="glow" className="animate-pulse">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>Analyzing your response...</span>
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                ) : feedback && (
+                  <>
+                    {/* AI Feedback Card */}
+                    <Card variant="glow" className="animate-fade-in">
+                      <CardHeader>
+                        <CardTitle className="text-lg">AI Feedback</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-foreground leading-relaxed">{feedback.feedback}</p>
+                      </CardContent>
+                    </Card>
+                    
+                    <AnswerComparison
+                      userAnswer={answer}
+                      strongAnswer={feedback.strongAnswer}
+                      missingElements={feedback.missingElements}
+                    />
+                  </>
                 )}
               </div>
             )}
@@ -270,10 +351,8 @@ const Interview: React.FC = () => {
           <div className="lg:col-span-1">
             <div className="sticky top-8">
               <CareerReadiness
-                overallScore={overallScore}
                 questionsAnswered={answeredQuestions.size}
                 totalQuestions={totalQuestions}
-                improvement={Math.max(0, overallScore - 50)}
               />
             </div>
           </div>

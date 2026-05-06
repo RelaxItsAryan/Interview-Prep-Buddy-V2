@@ -12,6 +12,7 @@ export interface EvaluationResult {
   feedback: string;
   strongAnswer: string;
   missingElements: string[];
+  score: number;
 }
 
 export const getGroqApiKey = (): string | null => {
@@ -146,7 +147,8 @@ You MUST respond with ONLY valid JSON (no markdown, no code blocks):
 {
   "feedback": "<string: 2-3 sentence feedback on how an interviewer would perceive this answer and what could be improved>",
   "strongAnswer": "<string: what a strong candidate answer would look like for this question>",
-  "missingElements": ["<string>", "<string>", ...] (max 4 key elements that were missing from the answer)
+  "missingElements": ["<string>", "<string>", ...] (max 4 key elements that were missing from the answer),
+  "score": <number: 0-100 indicating how well they answered based on accuracy, relevance, and depth>
 }`;
 
   const userPrompt = `Question Category: ${category}

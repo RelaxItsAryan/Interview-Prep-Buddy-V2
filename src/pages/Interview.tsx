@@ -7,9 +7,12 @@ import AnswerComparison from '@/components/AnswerComparison';
 import CareerReadiness from '@/components/CareerReadiness';
 import VoiceRecorder from '@/components/VoiceRecorder';
 import FloatingOrb from '@/components/FloatingOrb';
+import CameraPreview from '@/components/CameraPreview';
 import { evaluateAnswer, isGroqConfigured, transcribeAudio, generateInterviewQuestions, GeneratedQuestion } from '@/lib/groqService';
-import { ArrowLeft, ArrowRight, Send, Mic, Keyboard, MessageSquare, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Send, Mic, Keyboard, MessageSquare, Loader2, Gauge } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { Progress } from '@/components/ui/progress';
+import type { WebcamConfidenceResult } from '@/lib/confidenceApi';
 
 const Interview: React.FC = () => {
   const { role } = useParams<{ role: string }>();
@@ -25,8 +28,12 @@ const Interview: React.FC = () => {
     feedback: string;
     strongAnswer: string;
     missingElements: string[];
+    confidenceScore: number;
+    confidenceLevel: 'Low' | 'Medium' | 'High';
+    confidenceExplanation: string;
   } | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
+  const [webcamConfidence, setWebcamConfidence] = useState<WebcamConfidenceResult | null>(null);
 
   const currentQuestion = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
@@ -151,10 +158,18 @@ const Interview: React.FC = () => {
       <div className="min-h-screen relative overflow-hidden py-8 px-4">
         <FloatingOrb className="top-10 -right-20" size="lg" color="secondary" />
         <FloatingOrb className="bottom-40 -left-32" size="xl" color="primary" />
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-          <h2 className="font-display text-xl font-bold">Generating Interview Questions...</h2>
-          <p className="text-muted-foreground">AI is preparing personalized questions for {getRoleTitle(role || '')} role</p>
+        <div className="max-w-7xl mx-auto relative z-10 flex flex-col items-center justify-center min-h-[60vh] gap-6">
+          <div className="w-full max-w-sm">
+            <CameraPreview
+              className="aspect-video w-full rounded-2xl shadow-lg"
+              onConfidenceUpdate={setWebcamConfidence}
+            />
+          </div>
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+            <h2 className="font-display text-xl font-bold">Generating Interview Questions...</h2>
+            <p className="text-muted-foreground">AI is preparing personalized questions for {getRoleTitle(role || '')} role</p>
+          </div>
         </div>
       </div>
     );
@@ -163,6 +178,12 @@ const Interview: React.FC = () => {
   if (!currentQuestion) {
     return null;
   }
+
+  const confidenceTone = feedback?.confidenceLevel === 'High'
+    ? 'bg-green-500/20 text-green-400 border-green-500/30'
+    : feedback?.confidenceLevel === 'Medium'
+      ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+      : 'bg-red-500/20 text-red-400 border-red-500/30';
 
   return (
     <div className="min-h-screen relative overflow-hidden py-8 px-4">
@@ -285,6 +306,32 @@ const Interview: React.FC = () => {
                   </Card>
                 ) : feedback && (
                   <>
+                    <Card variant="glow" className="animate-fade-in">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                          <div className="p-2 rounded-xl bg-primary/20">
+                            <Gauge className="w-5 h-5 text-primary" />
+                          </div>
+                          Confidence Result
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex items-center justify-between gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Interviewer confidence in your answer</p>
+                            <p className="text-2xl font-bold">{feedback.confidenceScore}%</p>
+                          </div>
+                          <span className={`px-3 py-1 text-xs font-medium rounded-full border ${confidenceTone}`}>
+                            {feedback.confidenceLevel}
+                          </span>
+                        </div>
+                        <Progress value={feedback.confidenceScore} variant="gradient" className="h-3" />
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {feedback.confidenceExplanation}
+                        </p>
+                      </CardContent>
+                    </Card>
+
                     {/* AI Feedback Card */}
                     <Card variant="glow" className="animate-fade-in">
                       <CardHeader>
@@ -350,6 +397,28 @@ const Interview: React.FC = () => {
           {/* Sidebar - Career Readiness */}
           <div className="lg:col-span-1">
             <div className="sticky top-8">
+              <div className="mb-6">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">Camera</span>
+                  <span className="text-xs text-primary">Live</span>
+                </div>
+                <CameraPreview
+                  className="aspect-video w-full rounded-2xl shadow-lg"
+                  onConfidenceUpdate={setWebcamConfidence}
+                />
+                {webcamConfidence && (
+                  <div className="mt-3 rounded-xl border border-border/40 bg-muted/20 p-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Webcam confidence</span>
+                      <span className="font-semibold">{webcamConfidence.confidence}</span>
+                    </div>
+                    <Progress value={webcamConfidence.probability * 100} variant="gradient" className="mt-2 h-2" />
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      The model is {Math.round(webcamConfidence.probability * 100)}% confident based on your posture and motion.
+                    </p>
+                  </div>
+                )}
+              </div>
               <CareerReadiness
                 questionsAnswered={answeredQuestions.size}
                 totalQuestions={totalQuestions}

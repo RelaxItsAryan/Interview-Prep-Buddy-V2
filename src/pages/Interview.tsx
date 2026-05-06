@@ -7,6 +7,7 @@ import AnswerComparison from '@/components/AnswerComparison';
 import CareerReadiness from '@/components/CareerReadiness';
 import VoiceRecorder from '@/components/VoiceRecorder';
 import FloatingOrb from '@/components/FloatingOrb';
+import FaceDetectorCam from '@/components/FaceDetectorCam';
 import { evaluateAnswer, isGroqConfigured, transcribeAudio, generateInterviewQuestions, GeneratedQuestion } from '@/lib/groqService';
 import { ArrowLeft, ArrowRight, Send, Mic, Keyboard, MessageSquare, Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
@@ -25,8 +26,17 @@ const Interview: React.FC = () => {
     feedback: string;
     strongAnswer: string;
     missingElements: string[];
+    visualConfidence?: number;
+    score: number;
   } | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
+  const [questionResults, setQuestionResults] = useState<Record<number, { score: number, visualConfidence?: number }>>({});
+  const [isFinished, setIsFinished] = useState(false);
+  const faceScoresRef = React.useRef<number[]>([]);
+
+  const handleScoreUpdate = React.useCallback((score: number) => {
+    faceScoresRef.current.push(score);
+  }, []);
 
   const currentQuestion = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
@@ -82,7 +92,20 @@ const Interview: React.FC = () => {
         getRoleTitle(role || 'frontend'),
         currentQuestion.category
       );
-      setFeedback(aiFeedback);
+      
+      const avgConfidence = faceScoresRef.current.length > 0 
+        ? faceScoresRef.current.reduce((a, b) => a + b, 0) / faceScoresRef.current.length 
+        : undefined;
+      
+      setFeedback({
+        ...aiFeedback,
+        visualConfidence: avgConfidence
+      });
+      setQuestionResults(prev => ({
+        ...prev, 
+        [currentQuestionIndex]: { score: aiFeedback.score || 0, visualConfidence: avgConfidence }
+      }));
+      faceScoresRef.current = []; // Reset for next answer
       setAnsweredQuestions(prev => new Set([...prev, currentQuestionIndex]));
     } catch (error) {
       console.error('Evaluation error:', error);
@@ -117,7 +140,19 @@ const Interview: React.FC = () => {
         getRoleTitle(role || 'frontend'),
         currentQuestion.category
       );
-      setFeedback(aiFeedback);
+      const avgConfidence = faceScoresRef.current.length > 0 
+        ? faceScoresRef.current.reduce((a, b) => a + b, 0) / faceScoresRef.current.length 
+        : undefined;
+
+      setFeedback({
+        ...aiFeedback,
+        visualConfidence: avgConfidence
+      });
+      setQuestionResults(prev => ({
+        ...prev, 
+        [currentQuestionIndex]: { score: aiFeedback.score || 0, visualConfidence: avgConfidence }
+      }));
+      faceScoresRef.current = []; // Reset for next answer
       setAnsweredQuestions(prev => new Set([...prev, currentQuestionIndex]));
     } catch (error) {
       console.error('Voice processing error:', error);
@@ -145,6 +180,10 @@ const Interview: React.FC = () => {
     }
   };
 
+  const handleFinish = () => {
+    setIsFinished(true);
+  };
+
   // Show loading state while generating questions
   if (isLoadingQuestions) {
     return (
@@ -162,6 +201,47 @@ const Interview: React.FC = () => {
 
   if (!currentQuestion) {
     return null;
+  }
+
+  if (isFinished) {
+    const answeredKeys = Object.keys(questionResults);
+    const overallScore = answeredKeys.length > 0 
+      ? Math.round(answeredKeys.reduce((acc, key) => acc + questionResults[Number(key)].score, 0) / answeredKeys.length)
+      : 0;
+    const confidences = answeredKeys.map(k => questionResults[Number(k)].visualConfidence).filter(c => c !== undefined) as number[];
+    const overallConfidence = confidences.length > 0
+      ? Math.round((confidences.reduce((acc, val) => acc + val, 0) / confidences.length) * 100)
+      : 0;
+
+    return (
+      <div className="min-h-screen relative overflow-hidden py-8 px-4 flex flex-col items-center justify-center">
+        <FloatingOrb className="top-10 -right-20" size="lg" color="secondary" />
+        <FloatingOrb className="bottom-40 -left-32" size="xl" color="primary" />
+        <Card variant="glow" className="max-w-2xl w-full z-10 text-center space-y-6 p-8">
+          <CardHeader>
+            <CardTitle className="text-3xl font-display">Interview Completed!</CardTitle>
+            <p className="text-muted-foreground">Here is how you performed overall.</p>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-6 bg-muted/30 rounded-xl flex flex-col items-center justify-center">
+                <span className="text-sm font-medium text-muted-foreground mb-2">Average Answer Score</span>
+                <span className="text-5xl font-bold text-primary">{overallScore}%</span>
+              </div>
+              <div className="p-6 bg-muted/30 rounded-xl flex flex-col items-center justify-center">
+                <span className="text-sm font-medium text-muted-foreground mb-2">Overall Visual Confidence</span>
+                <span className="text-5xl font-bold text-green-500">{overallConfidence}%</span>
+              </div>
+            </div>
+            <div className="pt-6 border-t border-border/50">
+              <Button onClick={() => navigate('/select-role')} size="lg" variant="hero">
+                Start New Interview
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -292,6 +372,14 @@ const Interview: React.FC = () => {
                       </CardHeader>
                       <CardContent>
                         <p className="text-foreground leading-relaxed">{feedback.feedback}</p>
+                        {feedback.visualConfidence !== undefined && (
+                          <div className="mt-4 p-3 bg-muted/30 rounded-lg flex items-center justify-between">
+                            <span className="text-sm font-medium">Visual Confidence Score</span>
+                            <span className="text-sm font-bold text-primary">
+                              {Math.round(feedback.visualConfidence * 100)}%
+                            </span>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                     
@@ -336,20 +424,34 @@ const Interview: React.FC = () => {
                 ))}
               </div>
 
-              <Button
-                variant="outline"
-                onClick={handleNextQuestion}
-                disabled={currentQuestionIndex === totalQuestions - 1}
-              >
-                Next
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+              {currentQuestionIndex === totalQuestions - 1 ? (
+                <Button
+                  variant="hero"
+                  onClick={handleFinish}
+                  disabled={!answeredQuestions.has(currentQuestionIndex)}
+                >
+                  Finish Interview
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={handleNextQuestion}
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              )}
             </div>
           </div>
 
           {/* Sidebar - Career Readiness */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
+          <div className="lg:col-span-1 space-y-6">
+            <div className="sticky top-8 space-y-6">
+              <FaceDetectorCam 
+                isActive={!isAnalyzing && answer.length > 0 || inputMode === 'voice'} 
+                onScoreUpdate={handleScoreUpdate} 
+              />
               <CareerReadiness
                 questionsAnswered={answeredQuestions.size}
                 totalQuestions={totalQuestions}

@@ -1,0 +1,53 @@
+{
+  "model_type": "GradientBoostingClassifier",
+  "target_classes": [
+    "Confident",
+    "Low",
+    "Neutral"
+  ],
+  "target_encoding": {
+    "Confident": 0,
+    "Low": 1,
+    "Neutral": 2
+  },
+  "feature_names": [
+    "eye_shoulder_y_ratio",
+    "shoulder_y_diff",
+    "wrist_distance_x",
+    "wrist_shoulder_ratio",
+    "nose_eye_center_offset_x",
+    "shoulder_span",
+    "hip_shoulder_y_diff",
+    "body_lean_x",
+    "shoulder_center_x",
+    "hip_center_x",
+    "spine_angle",
+    "eye_distance",
+    "head_tilt_angle",
+    "eye_distance_ratio",
+    "shoulder_slope",
+    "head_direction",
+    "arm_position",
+    "posture",
+    "confidence_label"
+  ],
+  "categorical_encodings": {
+    "head_direction": {
+      "Center": 0,
+      "Looking Left": 1,
+      "Looking Right": 2,
+      "Looking Straight": 3
+    },
+    "arm_position": {
+      "Closed Arms": 0,
+      "Open Arms": 1,
+      "Partially Open": 2
+    },
+    "posture": {
+      "Slouched": 0,
+      "Stiff": 1,
+      "Upright": 2
+    }
+  },
+  "scaler_type": "StandardScaler"
+}

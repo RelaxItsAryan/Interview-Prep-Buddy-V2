@@ -12,6 +12,9 @@ export interface EvaluationResult {
   feedback: string;
   strongAnswer: string;
   missingElements: string[];
+  confidenceScore: number;
+  confidenceLevel: 'Low' | 'Medium' | 'High';
+  confidenceExplanation: string;
 }
 
 export const getGroqApiKey = (): string | null => {
@@ -146,7 +149,10 @@ You MUST respond with ONLY valid JSON (no markdown, no code blocks):
 {
   "feedback": "<string: 2-3 sentence feedback on how an interviewer would perceive this answer and what could be improved>",
   "strongAnswer": "<string: what a strong candidate answer would look like for this question>",
-  "missingElements": ["<string>", "<string>", ...] (max 4 key elements that were missing from the answer)
+  "missingElements": ["<string>", "<string>", ...] (max 4 key elements that were missing from the answer),
+  "confidenceScore": <number from 0 to 100 representing how confident the interviewer would be in this answer>,
+  "confidenceLevel": "<Low|Medium|High>",
+  "confidenceExplanation": "<string: one short sentence explaining the confidence score>"
 }`;
 
   const userPrompt = `Question Category: ${category}
@@ -194,6 +200,11 @@ Evaluate this response and provide detailed feedback.`;
       missingElements: Array.isArray(parsed.missingElements) 
         ? parsed.missingElements.slice(0, 4).map(String)
         : ['Specific examples', 'Technical depth'],
+      confidenceScore: Math.max(0, Math.min(100, Number(parsed.confidenceScore ?? 0))),
+      confidenceLevel: ['Low', 'Medium', 'High'].includes(parsed.confidenceLevel)
+        ? parsed.confidenceLevel
+        : (Number(parsed.confidenceScore ?? 0) >= 75 ? 'High' : Number(parsed.confidenceScore ?? 0) >= 45 ? 'Medium' : 'Low'),
+      confidenceExplanation: String(parsed.confidenceExplanation || 'Confidence estimated from completeness, clarity, and specificity.'),
     };
   } catch (parseError) {
     console.error('Failed to parse Groq response:', content);

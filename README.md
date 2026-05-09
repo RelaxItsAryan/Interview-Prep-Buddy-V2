@@ -85,4 +85,4 @@ The project is deployed on **Vercel**, ensuring fast load times and easy scalabi
 
 ## Author
 
-**Aryan Amit Arya**  
+**Aryan Amit Arya**, **Dilisha** and **Ilesh Kumar** 

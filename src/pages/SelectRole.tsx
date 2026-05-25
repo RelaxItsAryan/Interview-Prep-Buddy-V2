@@ -63,8 +63,8 @@ const SelectRole: React.FC = () => {
         </div>
 
         {/* Role Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          {(['frontend', 'backend', 'data-analyst'] as Role[]).map((role, index) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {(['frontend', 'backend', 'data-analyst', 'content-writing', 'graphic-designer'] as Role[]).map((role, index) => (
             <div 
               key={role}
               className="animate-fade-in-up"

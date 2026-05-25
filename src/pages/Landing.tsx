@@ -91,18 +91,7 @@ const Landing: React.FC = () => {
           </div>
 
           {/* Stats */}
-          <div className="flex flex-wrap items-center justify-center gap-8 mt-16 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            {[
-              { value: '100%', label: 'Improvement Guaranteed' },
-              { value: '85%', label: 'AI Success Rate' },
-              { value: '50+', label: 'Question Types' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="font-display text-3xl font-bold gradient-text">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+          
         </div>
       </section>
 
@@ -111,8 +100,8 @@ const Landing: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Everything You Need to
-              <span className="gradient-text"> Succeed</span>
+              Everything You Need to Succeed
+              <span className="gradient-text"> </span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Our AI-powered platform gives you the tools and feedback you need to ace your next interview.

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Code, Database, BarChart3, Check } from 'lucide-react';
+import { Code, Database, BarChart3, PenTool, Palette, Check } from 'lucide-react';
 
-export type Role = 'frontend' | 'backend' | 'data-analyst';
+export type Role = 'frontend' | 'backend' | 'data-analyst' | 'content-writing' | 'graphic-designer';
 
 interface RoleCardProps {
   role: Role;
@@ -34,6 +34,22 @@ const roleData = {
     gradient: 'from-accent/20 to-primary/10',
     borderColor: 'border-accent/40',
     skills: ['SQL', 'Python', 'Excel', 'Visualization'],
+  },
+  'content-writing': {
+    title: 'Content Writer',
+    description: 'Craft compelling narratives and copy',
+    icon: PenTool,
+    gradient: 'from-primary/20 to-accent/10',
+    borderColor: 'border-primary/40',
+    skills: ['Copywriting', 'SEO', 'Research', 'Editing'],
+  },
+  'graphic-designer': {
+    title: 'Graphic Designer',
+    description: 'Create stunning visual concepts and designs',
+    icon: Palette,
+    gradient: 'from-secondary/20 to-primary/10',
+    borderColor: 'border-secondary/40',
+    skills: ['Illustrator', 'Photoshop', 'Figma', 'Typography'],
   },
 };
 

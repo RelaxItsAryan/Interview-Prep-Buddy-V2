@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import RoleCard, { Role } from '@/components/RoleCard';
 import FloatingOrb from '@/components/FloatingOrb';
+import Geometric3D from '@/components/Geometric3D';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
+import heroBg from '@/assets/background.png';
 
 const SelectRole: React.FC = () => {
   const navigate = useNavigate();
@@ -17,9 +19,25 @@ const SelectRole: React.FC = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden py-12 px-4">
+      {/* Hero Background Image */}
+      <div 
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: `url(${heroBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+
       {/* Background Elements */}
       <FloatingOrb className="top-20 -right-20" size="lg" color="primary" />
       <FloatingOrb className="bottom-20 -left-32" size="xl" color="secondary" />
+      <FloatingOrb className="top-1/2 left-1/4" size="md" color="accent" />
+
+      {/* 3D Elements */}
+      <Geometric3D type="sphere" className="absolute top-40 left-10 opacity-30 hidden lg:block" />
+      <Geometric3D type="ring" className="absolute bottom-20 right-20 opacity-30 hidden lg:block" />
 
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Back Button */}
@@ -36,7 +54,7 @@ const SelectRole: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
           <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
-            Choose Your
+            Choose Your Role
             <span className="gradient-text"> Role</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
@@ -76,7 +94,7 @@ const SelectRole: React.FC = () => {
         </div>
 
         {/* Tips */}
-        <div className="mt-12 p-6 rounded-2xl glass animate-fade-in" style={{ animationDelay: '0.4s' }}>
+        <div className="mt-12 p-6 rounded-2xl glass-strong animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <h3 className="font-display font-semibold mb-3">Interview Tips</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
@@ -99,3 +117,4 @@ const SelectRole: React.FC = () => {
 };
 
 export default SelectRole;
+

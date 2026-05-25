@@ -6,29 +6,29 @@
 
 @layer base {
   :root {
-    --background: 260 30% 6%;
-    --foreground: 270 20% 95%;
+    --background: 260 25% 9%;
+    --foreground: 0 0% 100%;
 
-    --card: 260 25% 10%;
-    --card-foreground: 270 20% 95%;
+    --card: 260 20% 13%;
+    --card-foreground: 0 0% 100%;
 
     --popover: 260 25% 10%;
-    --popover-foreground: 270 20% 95%;
+    --popover-foreground: 0 0% 100%;
 
     --primary: 280 80% 60%;
-    --primary-foreground: 270 20% 98%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 320 70% 55%;
-    --secondary-foreground: 270 20% 98%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 260 20% 18%;
-    --muted-foreground: 270 15% 60%;
+    --muted-foreground: 0 0% 100%;
 
     --accent: 340 80% 65%;
-    --accent-foreground: 270 20% 98%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 270 20% 98%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 260 20% 20%;
     --input: 260 20% 15%;
@@ -51,27 +51,29 @@
     --shadow-elevated: 0 20px 60px hsl(260 30% 4% / 0.6);
 
     --font-display: 'Space Grotesk', system-ui, sans-serif;
-    --font-body: 'Inter', system-ui, sans-serif;
+    --font-body: 'Space Grotesk', system-ui, sans-serif;
 
     --sidebar-background: 260 25% 8%;
-    --sidebar-foreground: 270 20% 95%;
+    --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 280 80% 60%;
-    --sidebar-primary-foreground: 270 20% 98%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 260 20% 15%;
-    --sidebar-accent-foreground: 270 20% 95%;
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 260 20% 18%;
     --sidebar-ring: 280 80% 60%;
   }
 
   .dark {
-    --background: 260 30% 6%;
-    --foreground: 270 20% 95%;
+    --background: 260 25% 9%;
+    --foreground: 0 0% 100%;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    color: white !important;
+    font-family: var(--font-body) !important;
   }
 
   html {
@@ -80,18 +82,21 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-body);
+    font-family: var(--font-body) !important;
+    color: white !important;
     background-image: 
-      radial-gradient(ellipse 80% 50% at 50% -20%, hsl(280 80% 60% / 0.12) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 40% at 80% 80%, hsl(320 70% 55% / 0.08) 0%, transparent 40%),
+      radial-gradient(ellipse 80% 50% at 50% -20%, hsla(285, 14%, 95%, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, hsla(320, 27%, 60%, 0.08) 0%, transparent 40%),
       radial-gradient(ellipse 50% 30% at 20% 90%, hsl(340 80% 65% / 0.06) 0%, transparent 35%);
     background-attachment: fixed;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+  h1, h2, h3, h4, h5, h6, p, span, a, input, button, textarea, div {
+    font-family: var(--font-body) !important;
+    color: white !important;
   }
 }
+
 
 @layer utilities {
   .font-display {
@@ -103,14 +108,14 @@
   }
 
   .gradient-text {
-    background: var(--gradient-primary);
+    background: var();
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .glass {
-    background: hsl(260 25% 10% / 0.6);
+    background: hsla(257, 20%, 93%, 0.6);
     backdrop-filter: blur(20px);
     border: 1px solid hsl(260 20% 25% / 0.3);
   }

@@ -36,7 +36,7 @@ const AnswerComparison: React.FC<AnswerComparisonProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <div className="p-2 rounded-xl bg-secondary/20">
-            <Lightbulb className="w-5 h-5 text-secondary" />
+            <Lightbulb className="w-5 h-5 text-white" />
           </div>
           Answer Improvement
         </CardTitle>
@@ -47,7 +47,7 @@ const AnswerComparison: React.FC<AnswerComparisonProps> = ({
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <div className="p-1 rounded-lg bg-accent/20">
-                <X className="w-3 h-3 text-accent" />
+                <X className="w-3 h-3 text-white" />
               </div>
               Your Answer
             </div>
@@ -60,7 +60,7 @@ const AnswerComparison: React.FC<AnswerComparisonProps> = ({
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <div className="p-1 rounded-lg bg-primary/20">
-                <Check className="w-3 h-3 text-primary" />
+                <Check className="w-3 h-3 text-white" />
               </div>
               Strong Candidate Answer
             </div>
@@ -81,7 +81,7 @@ const AnswerComparison: React.FC<AnswerComparisonProps> = ({
               {missingElements.map((element, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1.5 text-xs font-medium rounded-full bg-secondary/20 text-secondary border border-secondary/30"
+                  className="px-3 py-1.5 text-xs font-medium rounded-full bg-secondary/20 text-white border border-secondary/30"
                 >
                   {element}
                 </span>
@@ -95,3 +95,4 @@ const AnswerComparison: React.FC<AnswerComparisonProps> = ({
 };
 
 export default AnswerComparison;
+

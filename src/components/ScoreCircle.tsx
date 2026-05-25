@@ -41,9 +41,9 @@ const ScoreCircle: React.FC<ScoreCircleProps> = ({
   };
 
   const textColors = {
-    primary: 'text-primary',
-    secondary: 'text-secondary',
-    accent: 'text-accent',
+    primary: 'text-white',
+    secondary: 'text-white',
+    accent: 'text-white',
   };
 
   return (
@@ -83,3 +83,4 @@ const ScoreCircle: React.FC<ScoreCircleProps> = ({
 };
 
 export default ScoreCircle;
+

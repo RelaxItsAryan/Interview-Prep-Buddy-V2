@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import FloatingOrb from '@/components/FloatingOrb';
 import Geometric3D from '@/components/Geometric3D';
 import { ArrowRight, Sparkles, Target, Brain, Users, Zap } from 'lucide-react';
-import heroBg from '@/assets/hero-bg.jpg';
+import heroBg from '@/assets/background.png';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const Landing: React.FC = () => {
     <div className="min-h-screen relative overflow-hidden">
       {/* Hero Background Image */}
       <div 
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-35"
         style={{
           backgroundImage: `url(${heroBg})`,
           backgroundSize: 'cover',
@@ -59,15 +59,15 @@ const Landing: React.FC = () => {
       <section className="relative z-10 pt-20 pb-16 px-4">
         <div className="max-w-6xl mx-auto text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-fade-in">
-            <Zap className="w-4 h-4 text-primary" />
+          {/* <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-fade-in">
+            <Zap className="w-4 h-4 text-white" />
             <span className="text-sm font-medium">AI-Powered Interview Prep</span>
-          </div>
+          </div> */}
 
           {/* Main Heading */}
           <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 animate-fade-in-up">
-            Interview Prep
-            <span className="block gradient-text">Buddy</span>
+            Interview Prep Buddy
+            <span className="block gradient-text"></span>
           </h1>
 
           {/* Subheading */}
@@ -129,7 +129,7 @@ const Landing: React.FC = () => {
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/10 w-fit mb-4 group-hover:scale-110 transition-transform">
-                    <Icon className="w-6 h-6 text-primary" />
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="font-display text-lg font-semibold mb-2">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
@@ -187,3 +187,4 @@ const Landing: React.FC = () => {
 };
 
 export default Landing;
+

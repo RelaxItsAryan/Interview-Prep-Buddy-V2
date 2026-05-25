@@ -52,7 +52,7 @@ const InterviewMirror: React.FC<InterviewMirrorProps> = ({ perception, isLoading
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <div className="p-2 rounded-xl bg-primary/20">
-            <Brain className="w-5 h-5 text-primary" />
+            <Brain className="w-5 h-5 text-white" />
           </div>
           Interviewer Perception
         </CardTitle>
@@ -83,3 +83,4 @@ const InterviewMirror: React.FC<InterviewMirrorProps> = ({ perception, isLoading
 };
 
 export default InterviewMirror;
+

@@ -20,7 +20,7 @@ const CareerReadiness: React.FC<CareerReadinessProps> = ({
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-lg">
             <div className="p-2 rounded-xl bg-accent/20">
-              <Award className="w-5 h-5 text-accent" />
+              <Award className="w-5 h-5 text-white" />
             </div>
             Interview Progress
           </span>
@@ -55,7 +55,7 @@ const CareerReadiness: React.FC<CareerReadinessProps> = ({
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-display font-bold text-2xl text-primary">
+              <span className="font-display font-bold text-2xl text-white">
                 {questionsAnswered}
               </span>
               <span className="text-xs text-muted-foreground">of {totalQuestions}</span>
@@ -76,7 +76,7 @@ const CareerReadiness: React.FC<CareerReadinessProps> = ({
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-xl bg-muted/30 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/20">
-              <Target className="w-4 h-4 text-primary" />
+              <Target className="w-4 h-4 text-white" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Remaining</p>
@@ -86,11 +86,11 @@ const CareerReadiness: React.FC<CareerReadinessProps> = ({
           
           <div className="p-3 rounded-xl bg-muted/30 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-secondary/20">
-              <CheckCircle className="w-4 h-4 text-secondary" />
+              <CheckCircle className="w-4 h-4 text-white" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Completed</p>
-              <p className="font-display font-semibold text-secondary">{questionsAnswered}</p>
+              <p className="font-display font-semibold text-white">{questionsAnswered}</p>
             </div>
           </div>
         </div>
@@ -98,7 +98,7 @@ const CareerReadiness: React.FC<CareerReadinessProps> = ({
         {/* Motivation */}
         <div className="p-3 rounded-xl bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20">
           <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-primary" />
+            <Zap className="w-4 h-4 text-white" />
             <p className="text-sm text-foreground">
               {questionsAnswered === 0 
                 ? "Start answering questions to practice!"
@@ -117,3 +117,4 @@ const CareerReadiness: React.FC<CareerReadinessProps> = ({
 };
 
 export default CareerReadiness;
+

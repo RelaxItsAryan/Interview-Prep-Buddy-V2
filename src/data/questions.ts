@@ -158,6 +158,58 @@ export const questionBank: Record<Role, Question[]> = {
       difficulty: 'medium',
     },
   ],
+  'content-writing': [
+    {
+      id: 'cw-1',
+      text: 'What is your process for researching and writing about a completely new topic?',
+      category: 'Research',
+      difficulty: 'medium',
+    },
+    {
+      id: 'cw-2',
+      text: 'How do you optimize an article for search engines while keeping it engaging for readers?',
+      category: 'SEO',
+      difficulty: 'medium',
+    },
+    {
+      id: 'cw-3',
+      text: 'Can you describe a time when a draft received heavy criticism? How did you handle the revisions?',
+      category: 'Behavioral',
+      difficulty: 'medium',
+    },
+    {
+      id: 'cw-4',
+      text: 'How do you adjust your tone and voice when writing for different target audiences or mediums?',
+      category: 'Adaptability',
+      difficulty: 'hard',
+    },
+  ],
+  'graphic-designer': [
+    {
+      id: 'gd-1',
+      text: 'Walk me through your design process from receiving a creative brief to the final prototype.',
+      category: 'Process',
+      difficulty: 'medium',
+    },
+    {
+      id: 'gd-2',
+      text: 'How do you balance aesthetic choices with functional or business requirements?',
+      category: 'Design Strategy',
+      difficulty: 'hard',
+    },
+    {
+      id: 'gd-3',
+      text: 'Describe a project where you had to work within strict brand guidelines while still being creative.',
+      category: 'Experience',
+      difficulty: 'medium',
+    },
+    {
+      id: 'gd-4',
+      text: 'How do you handle a situation where a client or stakeholder strongly disagrees with your design?',
+      category: 'Behavioral',
+      difficulty: 'medium',
+    },
+  ],
 };
 
 // Mock AI feedback generator (will be replaced with real AI)

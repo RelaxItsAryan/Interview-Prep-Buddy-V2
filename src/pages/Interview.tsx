@@ -9,8 +9,9 @@ import VoiceRecorder from '@/components/VoiceRecorder';
 import FloatingOrb from '@/components/FloatingOrb';
 import Geometric3D from '@/components/Geometric3D';
 import CameraPreview from '@/components/CameraPreview';
+import ISLSignLanguagePanel from '@/components/ISLSignLanguagePanel';
 import { evaluateAnswer, isGroqConfigured, transcribeAudio, generateInterviewQuestions, GeneratedQuestion } from '@/lib/groqService';
-import { ArrowLeft, ArrowRight, Send, Mic, Keyboard, MessageSquare, Loader2, Gauge, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Send, Mic, Keyboard, MessageSquare, Gauge, Sparkles, Hand } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { Progress } from '@/components/ui/progress';
 import type { WebcamConfidenceResult } from '@/lib/confidenceApi';
@@ -24,7 +25,7 @@ const Interview: React.FC = () => {
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState('');
-  const [inputMode, setInputMode] = useState<'text' | 'voice'>('text');
+  const [inputMode, setInputMode] = useState<'text' | 'voice' | 'sign'>('text');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [feedback, setFeedback] = useState<{
     feedback: string;
@@ -289,6 +290,18 @@ const Interview: React.FC = () => {
                     <Mic className="w-3.5 h-3.5 mr-2" />
                     Voice Mode
                   </Button>
+                  <Button
+                    variant={inputMode === 'sign' ? 'hero' : 'ghost'}
+                    size="sm"
+                    onClick={() => setInputMode('sign')}
+                    className="h-8 text-xs font-semibold relative"
+                  >
+                    <Hand className="w-3.5 h-3.5 mr-2" />
+                    Sign Language
+                    <span className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white border border-black shadow-sm">
+                      ISL
+                    </span>
+                  </Button>
                 </div>
 
                 {inputMode === 'text' ? (
@@ -320,12 +333,36 @@ const Interview: React.FC = () => {
                       </Button>
                     </div>
                   </div>
-                ) : (
+                ) : inputMode === 'voice' ? (
                   <div className="p-8 rounded-2xl bg-white/5 border border-white/5">
                     <VoiceRecorder 
                       onRecordingComplete={handleVoiceRecording}
                       disabled={isAnalyzing}
                     />
+                  </div>
+                ) : (
+                  <div className="rounded-2xl bg-white/3 border border-violet-500/10 p-4">
+                    <ISLSignLanguagePanel
+                      onTextUpdate={(text) => setAnswer(text)}
+                      disabled={isAnalyzing}
+                    />
+                    {answer && (
+                      <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">
+                          <span className="text-white font-bold">{answer.length}</span> chars recognized via sign language
+                        </p>
+                        <Button
+                          variant="hero"
+                          size="sm"
+                          onClick={handleSubmitAnswer}
+                          disabled={!answer.trim() || isAnalyzing}
+                          className="shadow-glow"
+                        >
+                          {isAnalyzing ? 'Analyzing...' : 'Submit Answer'}
+                          <Send className="w-3.5 h-3.5 ml-2" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
